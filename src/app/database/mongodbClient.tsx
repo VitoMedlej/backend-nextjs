@@ -9,6 +9,7 @@ type Models = {
   Users: User;
   Admins: Admin;
   Orders: OrderData;
+  Categories : Category;
 };
 
 type Doc<T> = WithId<Document> & Partial<Record<keyof T, any>>;

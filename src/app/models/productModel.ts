@@ -9,6 +9,7 @@ export const ProductSchema = z.object({
   price: z.number().positive(),
   newPrice: z.number().positive().optional(),
   category: z.string(),
+  subcategory: z.string().optional(),
   disabled: z.boolean().default(false),
   images: z.array(z.string()),
   createdAt: z.date(),
@@ -16,5 +17,10 @@ export const ProductSchema = z.object({
 });
 
 export const GetProductSchema = z.object({
-  params: z.object({}),
+  params: z.object({
+    category: z.string().optional(),
+    subcategory: z.string().optional(),
+    search: z.string().optional(),
+    sort: z.string().optional(),
+  }),
 });
