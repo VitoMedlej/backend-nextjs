@@ -1,49 +1,24 @@
+// 📄 File: src/app/api/categories/route.ts
+
 import { NextResponse, NextRequest } from "next/server";
+import { connectToDatabase, getCollection } from "@/app/database/mongodbClient";
+import { StatusCodes } from "http-status-codes";
 
-import { connectToDatabase, getCollection } from '@/database/mongodbClient'; // Your MongoDB client
-import { StatusCodes } from 'http-status-codes';
+export async function GET(_req: NextRequest) {
+  try {
+    await connectToDatabase();
+    const categoriesCollection = await getCollection("Categories");
 
-// Handler function for the GET request
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'GET') {
-    try {
-      // Connect to the database
-      await connectToDatabase();
+    const categories = await categoriesCollection.find({}).toArray();
 
-      // Fetch all categories from the "Categories" collection
-      const categoriesCollection = await getCollection('Categories');
-      const categories = await categoriesCollection.find({}).toArray();
-
-      // If no categories found, send a 404 response
-      if (!categories || categories.length === 0) {
-        return res.status(StatusCodes.NOT_FOUND).json({
-          success: false,
-          message: 'No categories found',
-          data: null,
-        });
-      }
-
-      // Return the categories in the response
-      return res.status(StatusCodes.OK).json({
-        success: true,
-        message: 'Categories fetched successfully',
-        data: categories,
-      });
-    } catch (error) {
-      // Log the error and return a 500 response
-      console.error('Error fetching categories:', error);
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: 'Error fetching categories',
-        data: null,
-      });
-    }
-  } else {
-    // If the method is not GET, return a 405 Method Not Allowed response
-    return res.status(StatusCodes.METHOD_NOT_ALLOWED).json({
-      success: false,
-      message: 'Method Not Allowed',
-      data: null,
-    });
+    return NextResponse.json(
+      { success: true, message: "Categories fetched successfully.", data: categories },
+      { status: StatusCodes.OK }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch categories.", data: null },
+      { status: StatusCodes.INTERNAL_SERVER_ERROR }
+    );
   }
 }
